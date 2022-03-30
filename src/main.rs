@@ -1,9 +1,10 @@
 use anyhow::Result;
 use cursive::{
+    event::{Callback, Event, EventResult, Key},
     reexports::log::{self},
     traits::{Nameable, Resizable},
-    views::{Dialog, LinearLayout, ListView, SelectView, TextView},
-    CursiveRunnable, CursiveRunner,
+    views::{Dialog, LinearLayout, ListView, OnEventView, SelectView, TextView},
+    CursiveRunnable, CursiveRunner, View,
 };
 use std::{cell::RefCell, rc::Rc, sync::mpsc};
 
@@ -59,9 +60,9 @@ impl Controller {
                 BlkDevice::with_partitions(
                     "/dev/sdb",
                     [
-                        BlkDevice::new("/dev/sda"),
-                        BlkDevice::new("/dev/sda"),
-                        BlkDevice::new("/dev/sda"),
+                        BlkDevice::new("/dev/sdb1"),
+                        BlkDevice::new("/dev/sdb2"),
+                        BlkDevice::new("/dev/sdb3"),
                     ],
                 ),
                 BlkDevice::new("/dev/sdc"),
@@ -91,14 +92,12 @@ impl Controller {
             while let Some(message) = self.rx.try_iter().next() {
                 // Handle messages arriving from the UI.
                 match message {
-                    ControllerMessage::UpdatedInputAvailable(text) => {
-                        self.ui.ui_tx.send(UiMessage::UpdateOutput(text)).unwrap();
-                    }
                     ControllerMessage::UpdatePartitions => {
                         self.devices.borrow_mut().push(BlkDevice::new("/dev/sdу"));
                         self.ui.send(UiMessage::ShowDiskList(self.devices.clone()));
                         log::info!("Disk added");
                     }
+                    ControllerMessage::InstallOn(_) => todo!(),
                 };
             }
         }
@@ -106,8 +105,8 @@ impl Controller {
 }
 
 pub enum ControllerMessage {
-    UpdatedInputAvailable(String),
     UpdatePartitions,
+    InstallOn(usize),
 }
 
 pub struct Ui {
@@ -116,6 +115,9 @@ pub struct Ui {
     ui_tx: mpsc::Sender<UiMessage>,
     controller_tx: mpsc::Sender<ControllerMessage>,
 }
+
+type ListItemData = (usize, usize);
+type DiskSelectView = OnEventView<SelectView<ListItemData>>;
 
 impl Ui {
     /// Create a new Ui object.  The provided `mpsc` sender will be used
@@ -132,7 +134,30 @@ impl Ui {
             .child(TextView::new("Disk").min_width(20))
             .child(TextView::new("Size"));
 
-        let select_view = SelectView::<usize>::new().with_name("InstallDiskList");
+        let select_view = SelectView::<ListItemData>::new().on_submit(|list, item| {});
+
+        let select_view = OnEventView::new(select_view)
+            .on_pre_event_inner(Event::Key(Key::Down), |list, evt| {
+                list.selection().and_then(|current| {
+                    let cb = list.select_down(current.1 + 1);
+                    Some(EventResult::Consumed(Some(cb)))
+                })
+            })
+            .on_pre_event_inner(Event::Key(Key::Up), |list, evt| {
+                list.selection().and_then(|current| {
+                    let mut scroll_size = 1;
+                    if current.0 != 0 {
+                        if let Some(prev) = list.get_item(current.0 - 1) {
+                            scroll_size = prev.1 .1;
+                        }
+                    }
+                    let cb = list.select_up(scroll_size + 1);
+                    Some(EventResult::Consumed(Some(cb)))
+                })
+            })
+            .on_pre_event(Event::Key(Key::PageUp), |_| {})
+            .on_pre_event(Event::Key(Key::PageDown), |_| {})
+            .with_name("InstallDiskList");
 
         let select_dialog = Dialog::new()
             .title("Select installation disk")
@@ -140,6 +165,8 @@ impl Ui {
             .with_name("DiskSelectDialog");
 
         ui.cursive.add_layer(select_dialog);
+        // set initial focus to disk selection list
+        ui.cursive.focus_name("InstallDiskList").unwrap();
 
         ui
     }
@@ -169,29 +196,47 @@ impl Ui {
         // Process any pending UI messages
         while let Some(message) = self.ui_rx.try_iter().next() {
             match message {
-                UiMessage::UpdateOutput(text) => {
-                    let mut output = self.cursive.find_name::<TextView>("output").unwrap();
-                    output.set_content(text);
-                }
                 UiMessage::ShowDiskList(disks) => {
-                    let mut output = self
+                    let mut list = self
                         .cursive
-                        .find_name::<SelectView<usize>>("InstallDiskList")
+                        .find_name::<DiskSelectView>("InstallDiskList")
                         .unwrap();
-                    output.clear();
+                    let list = list.get_inner_mut();
+                    list.clear();
                     for (i, disk) in disks.borrow().iter().enumerate() {
                         let s = format!("{disk:<20}{size}", disk = &disk.name, size = "10G");
-                        output.add_item(&s, i);
+                        if let Some(parts) = &disk.partitions {
+                            list.add_item(&s, (i, parts.len()));
+
+                            let mut it = parts.iter().peekable();
+                            while let Some(part) = it.next() {
+                                let symbol = if it.peek().is_none() {
+                                    '\u{2514}'
+                                } else {
+                                    '\u{251C}'
+                                };
+                                let s = format!(" {}\u{2500}{}", symbol, part.name);
+                                list.add_item(&s, (0, 0));
+                            }
+                        } else {
+                            list.add_item(&s, (i, 0));
+                        }
                     }
-                    //output.set_selection(0);
-                    let tx = self.controller_tx.clone();
-                    output.set_on_submit(|s, _i| {
-                        s.pop_layer();
-                        s.add_layer(Dialog::text("selected"))
+
+                    list.set_on_submit(|siv, item| {
+                        siv.add_layer(Dialog::text(format!("Item {} selected", item.0)).button(
+                            "Ok",
+                            |siv| {
+                                siv.pop_layer();
+                            },
+                        ))
                     });
-                    output.set_on_select(move |_e, _l| {
-                        tx.send(ControllerMessage::UpdatePartitions).unwrap();
-                    })
+
+                    // TODO: keep this code as a reference for future use
+                    // let tx = self.controller_tx.clone();
+                    // list.set_on_select(move |_e, l| {
+                    //     tx.send(ControllerMessage::UpdatePartitions).unwrap();
+                    // });
                 }
             }
         }
@@ -201,7 +246,6 @@ impl Ui {
 }
 
 pub enum UiMessage {
-    UpdateOutput(String),
     ShowDiskList(Rc<RefCell<Vec<BlkDevice>>>),
 }
 
