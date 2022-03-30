@@ -1,10 +1,10 @@
 use anyhow::Result;
 use cursive::{
-    event::{Callback, Event, EventResult, Key},
+    event::{Event, EventResult, Key},
     reexports::log::{self},
     traits::{Nameable, Resizable},
     views::{Dialog, LinearLayout, ListView, OnEventView, SelectView, TextView},
-    CursiveRunnable, CursiveRunner, View,
+    CursiveRunnable, CursiveRunner,
 };
 use std::{cell::RefCell, rc::Rc, sync::mpsc};
 
@@ -113,6 +113,7 @@ pub struct Ui {
     cursive: CursiveRunner<CursiveRunnable>,
     ui_rx: mpsc::Receiver<UiMessage>,
     ui_tx: mpsc::Sender<UiMessage>,
+    #[allow(dead_code)]
     controller_tx: mpsc::Sender<ControllerMessage>,
 }
 
@@ -134,16 +135,16 @@ impl Ui {
             .child(TextView::new("Disk").min_width(20))
             .child(TextView::new("Size"));
 
-        let select_view = SelectView::<ListItemData>::new().on_submit(|list, item| {});
+        let select_view = SelectView::<ListItemData>::new().on_submit(|_list, _item| {});
 
         let select_view = OnEventView::new(select_view)
-            .on_pre_event_inner(Event::Key(Key::Down), |list, evt| {
+            .on_pre_event_inner(Event::Key(Key::Down), |list, _evt| {
                 list.selection().and_then(|current| {
                     let cb = list.select_down(current.1 + 1);
                     Some(EventResult::Consumed(Some(cb)))
                 })
             })
-            .on_pre_event_inner(Event::Key(Key::Up), |list, evt| {
+            .on_pre_event_inner(Event::Key(Key::Up), |list, _evt| {
                 list.selection().and_then(|current| {
                     let mut scroll_size = 1;
                     if current.0 != 0 {
@@ -161,14 +162,41 @@ impl Ui {
 
         let select_dialog = Dialog::new()
             .title("Select installation disk")
+            .button("Exit", |siv| siv.add_layer(Ui::create_exit_dialog()))
             .content(ListView::new().child("", header).child("", select_view))
             .with_name("DiskSelectDialog");
 
         ui.cursive.add_layer(select_dialog);
+
         // set initial focus to disk selection list
         ui.cursive.focus_name("InstallDiskList").unwrap();
 
+        // handle Ctrl+C
+        ui.cursive.clear_global_callbacks(Event::CtrlChar('c'));
+        ui.cursive.set_on_pre_event(Event::CtrlChar('c'), |siv| {
+            //TODO: check if the top layer is not an Exit dialog
+            siv.add_layer(Ui::create_exit_dialog());
+        });
+
+        //TODO: probably this is not a good idea and some views shouldn't be dismissed
+        //TODO: by ESC key, but this is just for reference
+        ui.cursive.set_global_callback(Event::Key(Key::Esc), |siv| {
+            if siv.screen().len() > 1 {
+                siv.pop_layer();
+            } else {
+                siv.add_layer(Ui::create_exit_dialog());
+            }
+        });
+
         ui
+    }
+
+    fn create_exit_dialog() -> Dialog {
+        Dialog::text("Do you want to exit?\nThe device will be rebooted")
+            .button("Yes", |siv| siv.quit())
+            .button("No", |siv| {
+                siv.pop_layer();
+            })
     }
 
     pub fn refresh(&mut self) {
