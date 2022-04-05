@@ -12,3 +12,10 @@ version = "0.17.0"
 #path = "./cursive/cursive" 
 default-features = false
 features = ["crossterm-backend"]
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+codegen-units = 1
+panic = "abort"
