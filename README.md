@@ -1,1 +1,1 @@
-# tui-cursive
+# EVE interactive installer

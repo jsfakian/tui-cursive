@@ -21,11 +21,8 @@ use cursive::{
     views::{Button, NamedView, OnEventView, ResizedView, ListView}, view::Resizable,
 };
 
-use crate::{actions::execute, herr};
-
+use crate::{actions::execute, herr, data::BUTTONS};
 use crate::state::Move;
-
-pub const BUTTONS: &str = "Buttons";
 
 //type CmdLine = OnEventView<ResizedView<NamedView<ListView>>>;
 type CmdLine = OnEventView<ResizedView<NamedView<ListView>>>;

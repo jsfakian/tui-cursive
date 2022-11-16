@@ -21,3 +21,6 @@ pub mod ctrl_buttons;
 pub mod fs_select;
 pub mod networking;
 pub mod config;
+pub mod nic;
+pub mod pdev;
+pub mod idev;

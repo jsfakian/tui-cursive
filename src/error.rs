@@ -26,8 +26,6 @@ pub enum Error {
     NoState,
 
     IoError,
-
-    SerdeError,
 }
 
 impl Error {
@@ -43,11 +41,5 @@ impl Error {
 impl From<std::io::Error> for Error {
     fn from(_a: std::io::Error) -> Self {
         Self::IoError
-    }
-}
-
-impl From<serde_json::Error> for Error {
-    fn from(_a: serde_json::Error) -> Self {
-        Self::SerdeError
     }
 }

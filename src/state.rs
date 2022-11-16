@@ -6,7 +6,10 @@ use crate::{data::Data};
 pub enum CurrentState {
     FS,
     Raid,
+    NIC,
     Networking,
+    IDEV,
+    PDEV,
     Config,
 }
 
@@ -21,8 +24,11 @@ impl CurrentState {
         use CurrentState::*;
         match *self {
             FS => Raid,
-            Raid => Networking,
-            Networking => Config,
+            Raid => NIC,
+            NIC => Networking,
+            Networking => IDEV,
+            IDEV => PDEV, 
+            PDEV => Config,
             Config => Config,
         }
     }
@@ -32,8 +38,11 @@ impl CurrentState {
         match *self {
             FS => FS,
             Raid => FS,
-            Networking => Raid,
-            Config => Networking,
+            NIC => Raid,
+            Networking => NIC,
+            IDEV => Networking,
+            PDEV => IDEV,
+            Config => PDEV,
         }
     }
 }

@@ -15,11 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-use std::{io::{Write}, fs::File};
-
 use cursive::{
-    views::{LinearLayout, TextView, EditView, Dialog,},
+    views::{LinearLayout, TextView},
     Cursive
 };
 use cursive_aligned_view::Alignable;
@@ -28,34 +25,56 @@ use crate::{
     state::{CurrentState, GlobalState},
     error::Result,
     utils::{get_state_mut},
-    views::{raid::{get_raid, RAID}, ctrl_buttons::buttons, fs_select::{get_fs, FS}, networking::get_networking, config::get_config},
+    views::{
+        raid::get_raid, 
+        ctrl_buttons::buttons, 
+        fs_select::get_fs, 
+        networking::get_networking, 
+        config::get_config, 
+        idev::get_idev, 
+        nic::get_nic, 
+        pdev::get_pdev
+    }, 
+    data::{
+        NIC, 
+        FS, 
+        RAID, 
+        INSTALL_DISK, 
+        PERSIST_DISK
+    },
 };
 
 use crate::state::Move;
 
-fn new_state(c: &mut Cursive, state: GlobalState) -> Box<(dyn cursive::View + 'static)> {
+fn new_state(state: GlobalState) -> Box<(dyn cursive::View + 'static)> {
+    let map = state.data.map.clone();
     match state.current_state {
         CurrentState::FS => {
-            let value = state.data.map.get(FS).unwrap().clone();
-            return Box::new(get_fs(value));
+            return Box::new(get_fs(map.get(FS).unwrap().clone()));
         }
         CurrentState::Raid => {
-            let value = state.data.map.get(RAID).unwrap().clone();
-            return Box::new(get_raid(value));
+            return Box::new(get_raid(map.get(RAID).unwrap().clone()));
+        }
+        CurrentState::NIC => {
+            return Box::new(get_nic(map.get(NIC).unwrap().clone()));
         }
         CurrentState::Networking => {
-            let map = state.data.map.clone();
             return Box::new(get_networking(map));
         }
+        CurrentState::IDEV => {
+            return Box::new(get_idev(map));
+        }
+        CurrentState::PDEV => {
+            return Box::new(get_pdev(map));
+        }
         CurrentState::Config => {
-            let map = state.data.map.clone();
             return Box::new(get_config(map));
         }
     };
 }
 
 fn navigate(c: &mut Cursive, state: GlobalState) {
-    let view = new_state(c, state);
+    let view = new_state(state);
     c.pop_layer();
     c.add_fullscreen_layer(
         LinearLayout::vertical()
