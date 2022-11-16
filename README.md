@@ -1,1 +1,1 @@
-# tut-cursive
+# tui-cursive
