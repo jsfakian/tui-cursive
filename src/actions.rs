@@ -38,9 +38,7 @@ use crate::{
     data::{
         NIC, 
         FS, 
-        RAID, 
-        INSTALL_DISK, 
-        PERSIST_DISK
+        RAID,
     },
 };
 
