@@ -37,5 +37,6 @@ fn main() {
         }
     }
 
-    installer::run(installer_json)
+    installer::config(installer_json);
+    installer::run();
 }

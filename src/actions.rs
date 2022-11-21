@@ -37,8 +37,8 @@ use crate::{
         overview::get_overview,
     }, 
     data::{
-        NIC, 
-        FS, 
+        NIC,
+        FS,
         RAID,
     },
 };
@@ -86,10 +86,7 @@ fn navigate(c: &mut Cursive, state: GlobalState) {
     );
 }
 
-pub fn execute(c: &mut Cursive, m: Move) -> Result<()> {
-    let mut state = get_state_mut(c)?;
-    //let mut file = File::create("/Users/jsfakian/Documents/src/tui-cursive/debug.txt")?;
-    //let _res = file.write(state.current_state.to_string().as_bytes());
+fn state_move(state: &mut GlobalState, m: Move) {
     match m {
         Move::Previous => {
             state.current_state = state.current_state.prev();
@@ -98,22 +95,15 @@ pub fn execute(c: &mut Cursive, m: Move) -> Result<()> {
             state.current_state = state.current_state.next();
         }
     }
-    c.set_user_data(state.clone());
+}
+
+pub fn execute(c: &mut Cursive, m: Move) -> Result<()> {
+    let mut state = get_state_mut(c)?;
+    //let mut file = File::create("/Users/jsfakian/Documents/src/tui-cursive/debug.txt")?;
     //let _res = file.write(state.current_state.to_string().as_bytes());
+    state_move(&mut state, m);
+    c.set_user_data(state.clone());
     navigate(c, state);
-
-    /*match state.current_state {
-        CurrentState::Config => {
-            navigate(c, m, state);
-        }
-        CurrentState::FS => {
-        }
-        CurrentState::Raid => {
-        }
-        CurrentState::Networking => todo!(),
-    };*/
-
-    //load_bookmarks(c)?;
 
     Ok(())
 }
