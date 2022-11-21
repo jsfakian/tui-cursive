@@ -24,3 +24,4 @@ pub mod config;
 pub mod nic;
 pub mod pdev;
 pub mod idev;
+pub mod overview;

@@ -33,7 +33,8 @@ use crate::{
         config::get_config, 
         idev::get_idev, 
         nic::get_nic, 
-        pdev::get_pdev
+        pdev::get_pdev, 
+        overview::get_overview,
     }, 
     data::{
         NIC, 
@@ -67,6 +68,9 @@ fn new_state(state: GlobalState) -> Box<(dyn cursive::View + 'static)> {
         }
         CurrentState::Config => {
             return Box::new(get_config(map));
+        }
+        CurrentState::Overview => {
+            return Box::new(get_overview(map));
         }
     };
 }

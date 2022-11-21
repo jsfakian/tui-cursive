@@ -12,20 +12,28 @@ use cursive::{
 
 type RaidView = ResizedView<NamedView<Dialog>>;
 
+fn get_raid_index(value: &str) -> usize {
+    match value {
+        "0" => 0,
+        "1" => 1,
+        "5" => 2,
+        "10" => 3,
+        &_ => 0,
+    }
+}
 
 pub fn get_raid(value: String) -> RaidView {
     let key = "Choose RAID";
-    let value: usize = value.parse().unwrap();
     let d = Dialog::new()
         .title(key)
         .content(SelectView::new()
-            .item("0", 0)
-            .item("1", 1)
-            .item("5", 2)
-            .item("10", 3)
-            .selected(value)
+            .item("0", "0")
+            .item("1", "1")
+            .item("5", "5")
+            .item("10", "10")
+            .selected(get_raid_index(&value))
             .on_submit(move |s, v| 
-                herr!(s, save_config_value, RAID, v.to_string().as_str(), true))
+                herr!(s, save_config_value, RAID, v, true))
             .fixed_width(10));
     d.with_name(RAID).full_height()
     

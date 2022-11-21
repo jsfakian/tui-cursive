@@ -19,6 +19,7 @@ pub const FS: &str = "FS";
 pub const BUTTONS: &str = "Buttons";
 pub const RAID: &str = "RAID";
 pub const NIC: &str = "NIC";
+pub const OVERVIEW: &str = "Overview";
 
 const LABELS: [&str; 16] = [FS, RAID, NIC, SUBNET, GATEWAY, DNS, INSTALL_SERVER, INSTALL_DISK, PERSIST_DISK, SOFT_SERIAL, REBOOT_AFTER_INSTALL, PAUSE_AFTER_INSTALL, PAUSE_BEFORE_INSTALL, ROOT, FIND_BOOT, CONSOLE];
 

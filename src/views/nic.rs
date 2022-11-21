@@ -15,24 +15,27 @@ type NICView = ResizedView<NamedView<Dialog>>;
 
 pub fn get_nic(value: String) -> NICView {
     let title = "Choose NIC";
-    let value: usize = value.parse().unwrap();
+    let mut selected: usize = 0;
 
     let network_interfaces = NetworkInterface::show().unwrap();
-    let mut niv:SelectView<i32> = SelectView::new()
+    let mut niv = SelectView::new()
         .h_align(HAlign::Center)
         .autojump();
-    let mut i = 0;
+    let mut i: usize = 0;
     for itf in network_interfaces.iter() {
-        niv.add_item(itf.name.clone(), i);
+        if value == itf.name {
+            selected = i;
+        }
+        niv.add_item(itf.name.clone(), itf.name.clone());
         i += 1;
     }
 
     let d = Dialog::new()
         .title(title)
-        .content(niv.selected(value)
-            .selected(value)
+        .content(niv
+            .selected(selected)
             .on_submit(move |s, v| 
-                herr!(s, save_config_value, NIC, v.to_string().as_str(), true))
+                herr!(s, save_config_value, NIC, v, true))
             .fixed_width(10));
     d.with_name(NIC).full_height()
 }

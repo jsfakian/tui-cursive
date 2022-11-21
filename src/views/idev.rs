@@ -18,7 +18,7 @@ pub fn get_idev(map: HashMap<String, String>) -> IDEVView {
     let title = "Choose installation disk";
     let idev = map.get(INSTALL_DISK).unwrap().clone();
     let pdev = map.get(PERSIST_DISK).unwrap().clone();
-    let mut value: usize = 0;
+    let mut selected: usize = 0;
 
     let mut bv:SelectView<String> = SelectView::new()
         .h_align(HAlign::Center)
@@ -28,7 +28,7 @@ pub fn get_idev(map: HashMap<String, String>) -> IDEVView {
     let devices = get_block_devices();
     for d in devices.unwrap() {
         if d == idev {
-            value = i;
+            selected = i;
         }
         if !d.contains(&pdev) {
             bv.add_item(d.clone(), d.clone());
@@ -39,7 +39,7 @@ pub fn get_idev(map: HashMap<String, String>) -> IDEVView {
     let d = Dialog::new()
         .title(title)
         .content(bv
-            .selected(value)
+            .selected(selected)
             .on_submit(move |s, v| 
                 herr!(s, save_config_value, INSTALL_DISK, v, true))
             .fixed_width(10));

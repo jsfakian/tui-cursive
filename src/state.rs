@@ -11,6 +11,7 @@ pub enum CurrentState {
     IDEV,
     PDEV,
     Config,
+    Overview,
 }
 
 impl fmt::Display for CurrentState {
@@ -29,7 +30,8 @@ impl CurrentState {
             Networking => IDEV,
             IDEV => PDEV, 
             PDEV => Config,
-            Config => Config,
+            Config => Overview,
+            Overview => Overview,
         }
     }
 
@@ -43,6 +45,7 @@ impl CurrentState {
             IDEV => Networking,
             PDEV => IDEV,
             Config => PDEV,
+            Overview => Config,
         }
     }
 }

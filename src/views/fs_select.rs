@@ -11,18 +11,26 @@ use cursive::{
 
 type FSView = ResizedView<NamedView<Dialog>>;
 
+fn get_fs_index(value: &str) -> usize {
+    match value {
+        "EXT3" => 0,
+        "EXT4" => 1,
+        "ZFS" => 2,
+        &_ => 0,
+    }
+}
+
 pub fn get_fs(value: String) -> FSView {
     let key = "Choose FS";
-    let value: usize = value.parse().unwrap();
     let d = Dialog::new()
         .title(key)
         .content(SelectView::new()
-            .item("EXT3", 0)
-            .item("EXT4", 1)
-            .item("ZFS", 2)
-            .selected(value)
+            .item("EXT3", "EXT3")
+            .item("EXT4", "EXT4")
+            .item("ZFS", "ZFS")
+            .selected(get_fs_index(&value))
             .on_submit(move |s, v| 
-                herr!(s, save_config_value, FS, v.to_string().as_str(), true))
+                herr!(s, save_config_value, FS, v, true))
             .fixed_width(10));
         //.with_name(RAID))
     d.with_name(FS).full_height()
