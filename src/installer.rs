@@ -2,6 +2,7 @@ use cursive::{
     views::{LinearLayout, TextView,},
     Cursive, CursiveExt,
 };
+use serde_json::Value;
 
 use crate::{
     views::{fs_select::get_fs, ctrl_buttons::buttons,},
@@ -11,9 +12,9 @@ use crate::{
 
 use cursive_aligned_view::Alignable;
 
-pub fn run() {
+pub fn run(in_json: Value) {
     let mut c = Cursive::default();
-    let data = Data::new();
+    let data = Data::new(in_json);
     
     let state = GlobalState {
         data,

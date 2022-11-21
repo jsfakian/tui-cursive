@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+use serde_json::Value;
 
 pub const NETWORKING: &str = "Networking";
 pub const SUBNET: &str = "Subnet";
@@ -39,12 +40,18 @@ pub struct Data {
 }
 
 impl Data {
-    pub fn new() -> Self {
+    pub fn new(in_json: Value) -> Self {
         let mut data = Self { 
             map: HashMap::new(),
         };
         for (i, label) in LABELS.iter().enumerate() {
             data.map.insert(label.to_string(), VALUES[i].to_string());
+        }
+        if !in_json.is_null() {
+            //Replace initial values with user inserted values
+            for (k, v) in in_json.as_object().unwrap() {
+                data.map.insert(k.to_string(), v.as_str().unwrap().to_string());
+            }
         }
         data
     }
