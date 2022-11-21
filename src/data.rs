@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 
 pub const NETWORKING: &str = "Networking";
 pub const SUBNET: &str = "Subnet";
@@ -20,6 +21,7 @@ pub const BUTTONS: &str = "Buttons";
 pub const RAID: &str = "RAID";
 pub const NIC: &str = "NIC";
 pub const OVERVIEW: &str = "Overview";
+pub const INSTALLER_CFG_OUT: &str = "installer.json";
 
 const LABELS: [&str; 16] = [FS, RAID, NIC, SUBNET, GATEWAY, DNS, INSTALL_SERVER, INSTALL_DISK, PERSIST_DISK, SOFT_SERIAL, REBOOT_AFTER_INSTALL, PAUSE_AFTER_INSTALL, PAUSE_BEFORE_INSTALL, ROOT, FIND_BOOT, CONSOLE];
 
@@ -31,7 +33,7 @@ pub struct Field {
     pub value: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Data {
     pub map: HashMap<String, String>
 }
@@ -45,5 +47,13 @@ impl Data {
             data.map.insert(label.to_string(), VALUES[i].to_string());
         }
         data
+    }
+
+    pub fn write(&mut self, fname: &str) -> Result<(), std::io::Error>{
+        // Save the JSON structure into the other file.
+        std::fs::write(
+            fname,
+            serde_json::to_string_pretty(&self.map).unwrap(),
+        )
     }
 }

@@ -26,7 +26,7 @@ pub fn run() {
         LinearLayout::vertical()
             .child(TextView::new("Installer").align_center())
             .child(get_fs("0".to_string()))
-            .child(buttons()),
+            .child(buttons(false)),
     );
 
     c.run()

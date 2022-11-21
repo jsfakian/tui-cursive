@@ -13,6 +13,8 @@ cursive-aligned-view = "0.6.0"
 rbmenu = "0.6.3"
 clipboard = "0.5.0"
 network-interface = "0.1.4"
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0.87"
 [dependencies.cursive]
 version = "0.20.0"
 #path = "./cursive/cursive" 

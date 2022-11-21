@@ -45,44 +45,44 @@ use crate::{
 
 use crate::state::Move;
 
-fn new_state(state: GlobalState) -> Box<(dyn cursive::View + 'static)> {
+fn new_state(state: GlobalState) -> (Box<(dyn cursive::View + 'static)>, bool) {
     let map = state.data.map.clone();
     match state.current_state {
         CurrentState::FS => {
-            return Box::new(get_fs(map.get(FS).unwrap().clone()));
+            return (Box::new(get_fs(map.get(FS).unwrap().clone())), false);
         }
         CurrentState::Raid => {
-            return Box::new(get_raid(map.get(RAID).unwrap().clone()));
+            return (Box::new(get_raid(map.get(RAID).unwrap().clone())), false);
         }
         CurrentState::NIC => {
-            return Box::new(get_nic(map.get(NIC).unwrap().clone()));
+            return (Box::new(get_nic(map.get(NIC).unwrap().clone())), false);
         }
         CurrentState::Networking => {
-            return Box::new(get_networking(map));
+            return (Box::new(get_networking(map)), false);
         }
         CurrentState::IDEV => {
-            return Box::new(get_idev(map));
+            return (Box::new(get_idev(map)), false);
         }
         CurrentState::PDEV => {
-            return Box::new(get_pdev(map));
+            return (Box::new(get_pdev(map)), false);
         }
         CurrentState::Config => {
-            return Box::new(get_config(map));
+            return (Box::new(get_config(map)), false);
         }
         CurrentState::Overview => {
-            return Box::new(get_overview(map));
+            return (Box::new(get_overview(map)), true);
         }
     };
 }
 
 fn navigate(c: &mut Cursive, state: GlobalState) {
-    let view = new_state(state);
+    let (view, final_state) = new_state(state);
     c.pop_layer();
     c.add_fullscreen_layer(
         LinearLayout::vertical()
             .child(TextView::new("Installer").align_center())
             .child(view)
-            .child(buttons()),
+            .child(buttons(final_state)),
     );
 }
 
