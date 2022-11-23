@@ -16,12 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub mod raid;
+pub mod config;
 pub mod ctrl_buttons;
 pub mod fs_select;
-pub mod networking;
-pub mod config;
-pub mod nic;
-pub mod pdev;
 pub mod idev;
+pub mod networking;
+pub mod nic;
 pub mod overview;
+pub mod pdev;
+pub mod raid;

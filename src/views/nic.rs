@@ -3,11 +3,13 @@
  * Copyright (C) 2022 Ioannis Sfakianakis
  */
 
-use crate::{herr, utils::save_config_value, data::NIC};
+use crate::{data::NIC, herr, utils::save_config_value};
 
 use cursive::{
-    traits::{Nameable},
-    views::{NamedView, ResizedView, Dialog, SelectView}, view::Resizable, align::HAlign,
+    align::HAlign,
+    traits::Nameable,
+    view::Resizable,
+    views::{Dialog, NamedView, ResizedView, SelectView},
 };
 use network_interface::{NetworkInterface, NetworkInterfaceConfig};
 
@@ -18,9 +20,7 @@ pub fn get_nic(value: String) -> NICView {
     let mut selected: usize = 0;
 
     let network_interfaces = NetworkInterface::show().unwrap();
-    let mut niv = SelectView::new()
-        .h_align(HAlign::Center)
-        .autojump();
+    let mut niv = SelectView::new().h_align(HAlign::Center).autojump();
     let mut i: usize = 0;
     for itf in network_interfaces.iter() {
         if value == itf.name {
@@ -30,12 +30,10 @@ pub fn get_nic(value: String) -> NICView {
         i += 1;
     }
 
-    let d = Dialog::new()
-        .title(title)
-        .content(niv
-            .selected(selected)
-            .on_submit(move |s, v| 
-                herr!(s, save_config_value, NIC, v, true))
-            .fixed_width(10));
+    let d = Dialog::new().title(title).content(
+        niv.selected(selected)
+            .on_submit(move |s, v| herr!(s, save_config_value, NIC, v, true))
+            .fixed_width(10),
+    );
     d.with_name(NIC).full_height()
 }

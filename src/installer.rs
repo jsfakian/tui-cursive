@@ -1,14 +1,14 @@
 use cursive::{
-    views::{LinearLayout, TextView,},
+    views::{LinearLayout, TextView},
     Cursive, CursiveExt,
 };
 use serde_json::Value;
 
 use crate::{
+    actions::execute,
+    data::{Data, FS, INTERACTIVE_MODE, LABELS},
+    state::{CurrentState, GlobalState, Move},
     views::{ctrl_buttons::buttons, fs_select::get_fs},
-    state::{GlobalState, CurrentState, Move,},
-    data::{Data, INTERACTIVE_MODE, LABELS, FS},
-    actions::{execute},
 };
 
 use cursive_aligned_view::Alignable;
@@ -19,7 +19,7 @@ pub fn config(in_json: Value) {
     if data.map.get(INTERACTIVE_MODE).unwrap() == "false" {
         return;
     }
-    
+
     let state = GlobalState {
         data,
         current_state: CurrentState::FS,
@@ -31,7 +31,7 @@ pub fn config(in_json: Value) {
         LinearLayout::vertical()
             .child(TextView::new("Installer").align_center())
             .child(get_fs(state.data.map.get(FS).unwrap().clone()))
-            .child(buttons(false))
+            .child(buttons(false)),
     );
 
     let map = state.data.map.clone();

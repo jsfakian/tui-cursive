@@ -2,7 +2,11 @@ use std::{fs, os::unix::prelude::FileTypeExt};
 
 use cursive::Cursive;
 
-use crate::{error::Error, state::{GlobalState, Move}, actions::execute};
+use crate::{
+    actions::execute,
+    error::Error,
+    state::{GlobalState, Move},
+};
 
 pub fn get_state_mut(c: &mut Cursive) -> Result<GlobalState, Error> {
     match c.take_user_data::<GlobalState>() {
@@ -14,14 +18,14 @@ pub fn get_state_mut(c: &mut Cursive) -> Result<GlobalState, Error> {
     }
 }
 
-pub fn get_block_devices() -> Option<Vec<String>>{
+pub fn get_block_devices() -> Option<Vec<String>> {
     let mut vec = Vec::new();
     let devpaths = fs::read_dir("/dev/").unwrap();
     for path in devpaths {
         let devname = path.unwrap().path();
         let meta = fs::metadata(devname.clone()).unwrap();
         let file_type = meta.file_type();
-        
+
         if file_type.is_block_device() {
             vec.push(devname.into_os_string().into_string().unwrap());
         }
@@ -33,7 +37,8 @@ pub fn press_next(c: &mut Cursive) {
     let cb = c.cb_sink().clone();
     cb.send(Box::new(move |s: &mut cursive::Cursive| {
         execute(s, Move::Next);
-    })).unwrap();
+    }))
+    .unwrap();
 }
 
 pub fn save_config_value(c: &mut Cursive, k: &str, v: &str, m: bool) -> crate::error::Result<()> {

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::HashMap;
 
 pub const NETWORKING: &str = "Networking";
 pub const SUBNET: &str = "Subnet";
@@ -25,8 +25,28 @@ pub const OVERVIEW: &str = "Overview";
 pub const INSTALLER_CFG_OUT: &str = "installer.json";
 pub const INTERACTIVE_MODE: &str = "interactive";
 
-pub const LABELS: [&str; 17] = [INTERACTIVE_MODE, FS, RAID, NIC, SUBNET, GATEWAY, DNS, INSTALL_SERVER, INSTALL_DISK, PERSIST_DISK, SOFT_SERIAL, REBOOT_AFTER_INSTALL, PAUSE_AFTER_INSTALL, PAUSE_BEFORE_INSTALL, ROOT, FIND_BOOT, CONSOLE];
-const VALUES: [&str; 17] = ["true", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", ""];
+pub const LABELS: [&str; 17] = [
+    INTERACTIVE_MODE,
+    FS,
+    RAID,
+    NIC,
+    SUBNET,
+    GATEWAY,
+    DNS,
+    INSTALL_SERVER,
+    INSTALL_DISK,
+    PERSIST_DISK,
+    SOFT_SERIAL,
+    REBOOT_AFTER_INSTALL,
+    PAUSE_AFTER_INSTALL,
+    PAUSE_BEFORE_INSTALL,
+    ROOT,
+    FIND_BOOT,
+    CONSOLE,
+];
+const VALUES: [&str; 17] = [
+    "true", "", "", "", "", "", "", "", "_____", "_____", "", "", "", "", "", "", "",
+];
 
 #[derive(Debug, Clone)]
 pub struct Field {
@@ -36,12 +56,12 @@ pub struct Field {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Data {
-    pub map: HashMap<String, String>
+    pub map: HashMap<String, String>,
 }
 
 impl Data {
     pub fn new(in_json: Value) -> Self {
-        let mut data = Self { 
+        let mut data = Self {
             map: HashMap::new(),
         };
         for (i, label) in LABELS.iter().enumerate() {
@@ -50,17 +70,15 @@ impl Data {
         if !in_json.is_null() {
             //Replace initial values with user inserted values
             for (k, v) in in_json.as_object().unwrap() {
-                data.map.insert(k.to_string(), v.as_str().unwrap().to_string());
+                data.map
+                    .insert(k.to_string(), v.as_str().unwrap().to_string());
             }
         }
         data
     }
 
-    pub fn write(&mut self, fname: &str) -> Result<(), std::io::Error>{
+    pub fn write(&mut self, fname: &str) -> Result<(), std::io::Error> {
         // Save the JSON structure into the other file.
-        std::fs::write(
-            fname,
-            serde_json::to_string_pretty(&self.map).unwrap(),
-        )
+        std::fs::write(fname, serde_json::to_string_pretty(&self.map).unwrap())
     }
 }

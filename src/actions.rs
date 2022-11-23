@@ -17,29 +17,19 @@
  */
 use cursive::{
     views::{LinearLayout, TextView},
-    Cursive
+    Cursive,
 };
 use cursive_aligned_view::Alignable;
 
 use crate::{
-    state::{CurrentState, GlobalState},
+    data::{FS, NIC, RAID},
     error::Result,
-    utils::{get_state_mut},
+    state::{CurrentState, GlobalState},
+    utils::get_state_mut,
     views::{
-        raid::get_raid, 
-        ctrl_buttons::buttons, 
-        fs_select::get_fs, 
-        networking::get_networking, 
-        config::get_config, 
-        idev::get_idev, 
-        nic::get_nic, 
-        pdev::get_pdev, 
-        overview::get_overview,
-    }, 
-    data::{
-        NIC,
-        FS,
-        RAID,
+        config::get_config, ctrl_buttons::buttons, fs_select::get_fs, idev::get_idev,
+        networking::get_networking, nic::get_nic, overview::get_overview, pdev::get_pdev,
+        raid::get_raid,
     },
 };
 
@@ -107,5 +97,3 @@ pub fn execute(c: &mut Cursive, m: Move) -> Result<()> {
 
     Ok(())
 }
-
-

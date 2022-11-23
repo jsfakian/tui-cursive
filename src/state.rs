@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{data::Data};
+use crate::data::Data;
 
 #[derive(Debug, Copy, Clone)]
 pub enum CurrentState {
@@ -28,7 +28,7 @@ impl CurrentState {
             Raid => NIC,
             NIC => Networking,
             Networking => IDEV,
-            IDEV => PDEV, 
+            IDEV => PDEV,
             PDEV => Config,
             Config => Overview,
             Overview => Overview,

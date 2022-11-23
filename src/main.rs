@@ -1,17 +1,19 @@
+use serde_json::{json, Value};
 use std::env;
-use serde_json::{Value, json};
 
-mod installer;
 mod actions;
-mod state;
-mod views;
-mod utils;
 mod data;
 mod error;
+mod installer;
+mod state;
+mod utils;
+mod views;
 
 fn help() {
-    println!("usage: tui-cursive <installer.json>
-    input file <installer.json> is optional.");
+    println!(
+        "usage: tui-cursive <installer.json>
+    input file <installer.json> is optional."
+    );
 }
 
 fn main() {
@@ -22,7 +24,7 @@ fn main() {
         // no arguments passed
         1 => {
             println!("Interactive installer mode!");
-        },
+        } 
         2 => {
             installer_json = {
                 let text = std::fs::read_to_string(&args[1]).unwrap();

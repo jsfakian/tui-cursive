@@ -5,11 +5,17 @@
 
 use std::collections::HashMap;
 
-use crate::{herr, utils::{save_config_value, get_block_devices}, data::{INSTALL_DISK, PERSIST_DISK}};
+use crate::{
+    data::{INSTALL_DISK, PERSIST_DISK},
+    herr,
+    utils::{get_block_devices, save_config_value},
+};
 
 use cursive::{
-    traits::{Nameable},
-    views::{NamedView, ResizedView, Dialog, SelectView}, view::Resizable, align::HAlign,
+    align::HAlign,
+    traits::Nameable,
+    view::Resizable,
+    views::{Dialog, NamedView, ResizedView, SelectView},
 };
 
 type PDEVView = ResizedView<NamedView<Dialog>>;
@@ -20,9 +26,7 @@ pub fn get_pdev(map: HashMap<String, String>) -> PDEVView {
     let idev = map.get(INSTALL_DISK).unwrap().clone();
     let mut value: usize = 0;
 
-    let mut bv:SelectView<String> = SelectView::new()
-        .h_align(HAlign::Center)
-        .autojump();
+    let mut bv: SelectView<String> = SelectView::new().h_align(HAlign::Center).autojump();
     let mut i = 0;
 
     let devices = get_block_devices();
@@ -35,13 +39,11 @@ pub fn get_pdev(map: HashMap<String, String>) -> PDEVView {
             i += 1;
         }
     }
-    
-    let d = Dialog::new()
-        .title(title)
-        .content(bv
-            .selected(value)
-            .on_submit(move |s, v| 
-                herr!(s, save_config_value, PERSIST_DISK, v, true))
-            .fixed_width(10));
+
+    let d = Dialog::new().title(title).content(
+        bv.selected(value)
+            .on_submit(move |s, v| herr!(s, save_config_value, PERSIST_DISK, v, true))
+            .fixed_width(10),
+    );
     d.with_name(PERSIST_DISK).full_height()
 }

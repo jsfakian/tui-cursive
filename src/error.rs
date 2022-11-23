@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use cursive::{views::Dialog, Cursive, view::Resizable};
+use cursive::{view::Resizable, views::Dialog, Cursive};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
